@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -19,8 +19,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * $(filename)
- */
+#include "../inc/MarlinConfigPre.h"
 
+#include <rs485/rs485bus.hpp>
+#include <rs485/bus_adapters/hardware_serial.h>
+
+#include <rs485/protocols/photon.h>
+#include <rs485/packetizer.h>
+
+#define RS485_SEND_BUFFER_SIZE 32
+
+extern HardwareSerialBusIO rs485BusIO;
+extern RS485Bus<RS485_BUS_BUFFER_SIZE> rs485Bus;
+extern PhotonProtocol rs485Protocol;
+extern Packetizer rs485Packetizer;
+extern uint8_t rs485Buffer[RS485_SEND_BUFFER_SIZE];
+
+void rs485_init();

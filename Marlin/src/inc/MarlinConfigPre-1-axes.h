@@ -19,35 +19,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * mmu2_crc.cpp
- */
-
-#include "../../inc/MarlinConfigPre.h"
-
-#if HAS_PRUSA_MMU3
-
-#include "mmu2_crc.h"
-
-#ifdef __AVR__
-  #include <util/crc16.h>
+#ifndef __MARLIN_FIRMWARE__
+#define __MARLIN_FIRMWARE__
 #endif
 
-namespace modules {
+#if __has_include("../../../Marlin/Config.h")
+  #include "../../Config.h"
+#else
+  #define USE_STD_CONFIGS 1
+#endif
 
-namespace crc {
+#include <stdint.h>
 
-uint8_t CRC8::CCITT_update(uint8_t crc, uint8_t b) {
-  #ifdef __AVR__
-    return _crc8_ccitt_update(crc, b);
-  #else
-    return CCITT_updateCX(crc, b);
+#ifndef __MARLIN_DEPS__
+  #include "../HAL/platforms.h"
+#endif
+
+#include "../core/macros.h"
+#include "../core/boards.h"
+
+#if USE_STD_CONFIGS
+  #include "../../Configuration.h"
+#endif
+
+#ifdef CUSTOM_VERSION_FILE
+  #if __has_include(STRINGIFY(../../CUSTOM_VERSION_FILE))
+    #include STRINGIFY(../../CUSTOM_VERSION_FILE)
   #endif
-}
+#endif
 
-} // namespace crc
-
-} // namespace modules
-
-#endif // HAS_PRUSA_MMU3
+#include "Version.h"

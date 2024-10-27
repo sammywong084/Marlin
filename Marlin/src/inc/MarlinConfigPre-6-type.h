@@ -19,29 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#pragma once
 
-/**
- * mmu2_log.cpp
- */
+#include "MarlinConfigPre-5-post.h"
+#include "Conditionals-5-post.h"
 
-#include "../../inc/MarlinConfigPre.h"
-
-#if HAS_PRUSA_MMU3
-
-#include "mmu2_log.h"
-
-namespace MMU3 {
-
-  void LogEchoEvent_P(PGM_P const pstr) {
-    SERIAL_ECHO_START(); // @@TODO Decide MMU errors on serial line
-    SERIAL_MMU2();
-    SERIAL_ECHOLN_P(pstr);
-  }
-
-  void LogErrorEvent_P(PGM_P const pstr) {
-    LogEchoEvent_P(pstr);
-  }
-
-} // MMU3
-
-#endif // HAS_PRUSA_MMU3
+#ifndef __MARLIN_DEPS__
+  #include HAL_PATH(.., inc/Conditionals_post.h)
+  #include "../core/types.h"  // Ahead of sanity-checks
+#endif

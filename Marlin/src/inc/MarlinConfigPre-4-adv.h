@@ -21,22 +21,14 @@
  */
 #pragma once
 
-/**
- * Conditionals_type.h
- * Internal defines that depend on Configurations and Pins but are not user-editable.
- * Define conditionals in this file if they depend on core/types.h.
- */
+#include "Conditionals-3-etc.h"
 
-#ifdef GITHUB_ACTIONS
-  // Extras for CI testing
+#ifndef __MARLIN_DEPS__
+  #include HAL_PATH(.., inc/Conditionals_LCD.h)
 #endif
 
-// If an axis's Homing Current differs from standard current...
-#define HAS_CURRENT_HOME(N) (N##_CURRENT_HOME > 0 && N##_CURRENT_HOME != N##_CURRENT)
+#include "../core/drivers.h"
 
-// Does any axis have homing current?
-#define _OR_HAS_CURR_HOME(N) HAS_CURRENT_HOME(N) ||
-#if MAIN_AXIS_MAP(_OR_HAS_CURR_HOME) MAP(_OR_HAS_CURR_HOME, X2, Y2, Z2, Z3, Z4) 0
-  #define HAS_HOMING_CURRENT 1
+#if USE_STD_CONFIGS
+  #include "../../Configuration_adv.h"
 #endif
-#undef _OR_HAS_CURR_HOME

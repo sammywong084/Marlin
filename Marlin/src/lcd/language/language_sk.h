@@ -392,10 +392,10 @@ namespace LanguageNarrow_sk {
   LSTR MSG_A_RETRACT                      = _UxGT("A-retrakt");
   LSTR MSG_A_TRAVEL                       = _UxGT("A-prejazd");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Tvarov. vstupu");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("Povol. tvarov. @");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("Zakáz. tvarov. @");
-  LSTR MSG_SHAPING_FREQ                   = _UxGT("Frekvencia @");
-  LSTR MSG_SHAPING_ZETA                   = _UxGT("Tlmenie @");
+  LSTR MSG_SHAPING_ENABLE_N               = _UxGT("Povol. tvarov. @");
+  LSTR MSG_SHAPING_DISABLE_N              = _UxGT("Zakáz. tvarov. @");
+  LSTR MSG_SHAPING_FREQ_N                 = _UxGT("Frekvencia @");
+  LSTR MSG_SHAPING_ZETA_N                 = _UxGT("Tlmenie @");
   LSTR MSG_XY_FREQUENCY_LIMIT             = _UxGT("Max. frekvencia");
   LSTR MSG_XY_FREQUENCY_FEEDRATE          = _UxGT("Min. posun");
   LSTR MSG_STEPS_PER_MM                   = _UxGT("Kroky/mm");
@@ -533,9 +533,12 @@ namespace LanguageNarrow_sk {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Vysunúť filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Vysunúť filament *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Vysunúť všetko");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Načítať kartu");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Načítať SD kartu");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Načítať USB disk");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Načítať SD kartu");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Načítať USB disk");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Načítať SD kartu");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Vymeniť kartu");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Odpojiť kartu");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Sonda Z mimo podl.");

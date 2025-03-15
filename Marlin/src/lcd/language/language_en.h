@@ -449,10 +449,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_A_RETRACT                      = _UxGT("Retract Accel");
   LSTR MSG_A_TRAVEL                       = _UxGT("Travel Accel");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("Enable @ shaping");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("Disable @ shaping");
-  LSTR MSG_SHAPING_FREQ                   = _UxGT("@ frequency");
-  LSTR MSG_SHAPING_ZETA                   = _UxGT("@ damping");
+  LSTR MSG_SHAPING_ENABLE_N               = _UxGT("Enable @ shaping");
+  LSTR MSG_SHAPING_DISABLE_N              = _UxGT("Disable @ shaping");
+  LSTR MSG_SHAPING_FREQ_N                 = _UxGT("@ frequency");
+  LSTR MSG_SHAPING_ZETA_N                 = _UxGT("@ damping");
   LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frequency");  // ProUI
   LSTR MSG_SHAPING_B_FREQ                 = STR_B _UxGT(" frequency");  // ProUI
   LSTR MSG_SHAPING_C_FREQ                 = STR_C _UxGT(" frequency");  // ProUI
@@ -511,7 +511,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Machine Name");
   LSTR MSG_INFO_SIZE                      = _UxGT("Size");
   LSTR MSG_INFO_FWVERSION                 = _UxGT("Firmware Version");
-  LSTR MSG_INFO_BUILD                     = _UxGT("Build Datetime");
+  LSTR MSG_INFO_BUILD                     = _UxGT("Build Info");
   LSTR MSG_PREPARE                        = _UxGT("Prepare");
   LSTR MSG_TUNE                           = _UxGT("Tune");
   LSTR MSG_POWER_MONITOR                  = _UxGT("Power monitor");
@@ -606,9 +606,12 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Unload Filament");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Unload * Filament");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Unload All");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Attach ") MEDIA_TYPE_EN;
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("Attach SD Card");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("Attach USB Drive");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("Attach SD Card");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("Attach USB Drive");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Attach ") MEDIA_TYPE_EN;
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Change ") MEDIA_TYPE_EN;
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Release ") MEDIA_TYPE_EN;
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Probe Past Bed");

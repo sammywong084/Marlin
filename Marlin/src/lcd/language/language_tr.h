@@ -397,10 +397,10 @@ namespace LanguageNarrow_tr {
   LSTR MSG_A_RETRACT                      = _UxGT("G.Çekme Hızı");
   LSTR MSG_A_TRAVEL                       = _UxGT("Gezinme Hızı");
   LSTR MSG_INPUT_SHAPING                  = _UxGT("Input Shaping");
-  LSTR MSG_SHAPING_ENABLE                 = _UxGT("@ Biçimlemeyi Aç");
-  LSTR MSG_SHAPING_DISABLE                = _UxGT("@ Biçimlemeyi Kapat");
-  LSTR MSG_SHAPING_FREQ                   = _UxGT("@ frekans");
-  LSTR MSG_SHAPING_ZETA                   = _UxGT("@ sönümleme");
+  LSTR MSG_SHAPING_ENABLE_N               = _UxGT("@ Biçimlemeyi Aç");
+  LSTR MSG_SHAPING_DISABLE_N              = _UxGT("@ Biçimlemeyi Kapat");
+  LSTR MSG_SHAPING_FREQ_N                 = _UxGT("@ frekans");
+  LSTR MSG_SHAPING_ZETA_N                 = _UxGT("@ sönümleme");
   LSTR MSG_SHAPING_A_FREQ                 = STR_A _UxGT(" frekansı");   // ProUI
   LSTR MSG_SHAPING_B_FREQ                 = STR_B _UxGT(" frekansı");   // ProUI
   LSTR MSG_SHAPING_C_FREQ                 = STR_C _UxGT(" frekansı");   // ProUI
@@ -550,9 +550,12 @@ namespace LanguageNarrow_tr {
   LSTR MSG_FILAMENTUNLOAD                 = _UxGT("Filaman Çıkart");
   LSTR MSG_FILAMENTUNLOAD_E               = _UxGT("Filaman Çıkart *");
   LSTR MSG_FILAMENTUNLOAD_ALL             = _UxGT("Tümünü Çıkart");
-  LSTR MSG_ATTACH_MEDIA                   = _UxGT("Medyayı Ekle");
-  LSTR MSG_ATTACH_SD_MEDIA                = _UxGT("SD Kartı takın");
-  LSTR MSG_ATTACH_USB_MEDIA               = _UxGT("USB Sürücüyü takın");
+  #if HAS_MULTI_VOLUME
+    LSTR MSG_ATTACH_SD_MEDIA              = _UxGT("SD Kartı takın");
+    LSTR MSG_ATTACH_USB_MEDIA             = _UxGT("USB Sürücüyü takın");
+  #else
+    LSTR MSG_ATTACH_MEDIA                 = _UxGT("Medyayı Ekle");
+  #endif
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Medyayı Değiştir");
   LSTR MSG_RELEASE_MEDIA                  = _UxGT("Medyayı Çıkart");
   LSTR MSG_ZPROBE_OUT                     = _UxGT("Z Prob Tablayı Geçti");

@@ -130,7 +130,6 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3 Dual-Z 2.1.2.7 012426"
 #define CUSTOM_MACHINE_NAME "E3 Dual-Z 2.1.2.7 053026"
 
 // Printer's unique ID, used by some programs to differentiate between machines.

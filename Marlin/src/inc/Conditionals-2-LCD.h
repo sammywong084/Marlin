@@ -636,18 +636,6 @@
   #define HAS_STATUS_MESSAGE 1
 #endif
 
-#if ANY(HAS_WIRED_LCD, DWIN_LCD_PROUI)
-  #if ENABLED(STATUS_MESSAGE_SCROLLING)
-    #define MAX_MESSAGE_SIZE _MAX(LONG_FILENAME_LENGTH, MAX_LANG_CHARSIZE * (LCD_WIDTH))
-  #else
-    #define MAX_MESSAGE_SIZE (MAX_LANG_CHARSIZE * (LCD_WIDTH))
-  #endif
-#elif HAS_STATUS_MESSAGE
-  #define MAX_MESSAGE_SIZE 63
-#else
-  #define MAX_MESSAGE_SIZE 1
-#endif
-
 #if HAS_WIRED_LCD && !HAS_GRAPHICAL_TFT && !IS_DWIN_MARLINUI
   #define HAS_LCDPRINT 1
 #endif
@@ -874,7 +862,11 @@
     #define LCD_HEIGHT TERN(TOUCH_SCREEN, 6, 7)
   #endif
 #elif HAS_UI_1024x600
-  #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
+  #if ENABLED(TFT_FONT_LARGE)
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 9, 10)
+  #else
+    #define LCD_HEIGHT TERN(TOUCH_SCREEN, 12, 13)
+  #endif
 #endif
 
 // This emulated DOGM has 'touch/xpt2046', not 'tft/xpt2046'

@@ -920,11 +920,11 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
  */
 #if ENABLED(DIFFERENTIAL_EXTRUDER)
   #if EXTRUDERS != 1
-    #error "DIFFERENTIAL EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
+    #error "DIFFERENTIAL_EXTRUDER currently requires a single extruder (EXTRUDERS = 1)."
   #elif !IS_FULL_CARTESIAN
-    #error "DIFFERENTIAL EXTRUDER requires standard Cartesian kinematics."
+    #error "DIFFERENTIAL_EXTRUDER requires standard Cartesian kinematics."
   #elif !defined(CPU_32_BIT)
-    #error "DIFFERENTIAL EXTRUDER requires a 32-bit CPU."
+    #error "DIFFERENTIAL_EXTRUDER requires a 32-bit CPU."
   #endif
 #endif
 
@@ -3053,6 +3053,10 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #error "Please select only one of TFT_RES_320x240, TFT_RES_480x272, TFT_RES_480x320, or TFT_RES_1024x600."
 #endif
 
+#if ENABLED(TFT_FONT_LARGE) && !ALL(TFT_COLOR_UI, HAS_UI_1024x600)
+  #error "TFT_FONT_LARGE requires TFT_COLOR_UI with a 1024x600 TFT (TFT_RES_1024x600)."
+#endif
+
 #if ENABLED(TFT_LVGL_UI)
   #if DISABLED(TFT_RES_480x320)
     #error "TFT_LVGL_UI requires TFT_RES_480x320."
@@ -3975,6 +3979,15 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   static_assert(COUNT(sanity_arr_8) >= LOGICAL_AXES, "MANUAL_FEEDRATE requires " _LOGICAL_AXES_STR "elements.");
   static_assert(COUNT(sanity_arr_8) <= LOGICAL_AXES, "MANUAL_FEEDRATE has too many elements. " _LOGICAL_AXES_STR "elements only.");
   static_assert(_PLUS_TEST(8), "MANUAL_FEEDRATE values must be positive.");
+#endif
+
+#if ENABLED(MPCTEMP)
+  constexpr float sanity_arr_9[] = MPC_HEATER_POWER;
+  static_assert(_PLUS_TEST(9), "MPC_HEATER_POWER values must be positive.");
+  constexpr float sanity_arr_10[] = MPC_BLOCK_HEAT_CAPACITY;
+  static_assert(_PLUS_TEST(10), "MPC_BLOCK_HEAT_CAPACITY values must be positive.");
+  constexpr float sanity_arr_11[] = MPC_SENSOR_RESPONSIVENESS;
+  static_assert(_PLUS_TEST(11), "MPC_SENSOR_RESPONSIVENESS values must be positive.");
 #endif
 
 #undef __PLUS_TEST

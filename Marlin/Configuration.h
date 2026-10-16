@@ -130,7 +130,7 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
-#define CUSTOM_MACHINE_NAME "E3 Dual-Z 2.1.2.8 091126"
+#define CUSTOM_MACHINE_NAME "E3 Dual-Z 2.1.2.9 101226"
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
@@ -3428,6 +3428,11 @@
 //#define ANYCUBIC_LCD_VYPER
 
 //
+// Touch-screen LCD for Anycubic Kobra
+//
+//#define ANYCUBIC_LCD_KOBRA
+
+//
 // Sovol SV-06 Resistive Touch Screen
 //
 //#define SOVOL_SV06_RTS
@@ -3595,7 +3600,7 @@
    */
   #define TFT_FONT  NOTOSANS
   //#define TFT_FONT_LARGE    // Use larger fonts for better visibility. (TFT_RES_1024x600 with NOTOSANS or UNIFONT)
-  //#define TFT_NO_TINY_FONT  // A small numerical font may be used for meshes, etc. Eschew this font to save 1.1k.
+  //#define TFT_NO_TINY_FONT  // Eschew the small numerical font used for meshes to recover Flash space.
 
   /**
    * TFT Theme for Color UI. Choose one of the following or add a new one to 'Marlin/src/lcd/tft/themes' directory

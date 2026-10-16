@@ -598,6 +598,21 @@ void Stepper::enable_axis(const AxisEnum axis) {
   TERN_(EXTENSIBLE_UI, ExtUI::onAxisEnabled(ExtUI::axis_to_axis_t(axis)));
 }
 
+// Power off the given axis stepper(s) and apply side-effects (e.g., mark the axis untrusted)
+static void _disable_axis_steppers(const AxisEnum axis) {
+  #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
+  switch (axis) {
+    MAIN_AXIS_MAP(_CASE_DISABLE)
+    default: break;
+  }
+  TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
+}
+
+// Axes sharing a just-disabled ENA pin are also powered off, so apply their side-effects too
+static void _disable_overlapping_axes(const ena_mask_t overlap) {
+  if (any_enable_overlap()) LOOP_NUM_AXES(a) if (TEST(overlap, a)) _disable_axis_steppers(AxisEnum(a));
+}
+
 /**
  * Mark an axis as disabled and power off its stepper(s).
  * If one of the axis steppers is still in use by a non-disabled axis the axis will remain powered.
@@ -623,12 +638,8 @@ bool Stepper::disable_axis(const AxisEnum axis) {
   // toggle the ENA state that they all share.
   const bool can_disable = can_axis_disable(axis);
   if (can_disable) {
-    #define _CASE_DISABLE(N) case N##_AXIS: DISABLE_AXIS_##N(); break;
-    switch (axis) {
-      MAIN_AXIS_MAP(_CASE_DISABLE)
-      default: break;
-    }
-    TERN_(EXTENSIBLE_UI, ExtUI::onAxisDisabled(ExtUI::axis_to_axis_t(axis)));
+    _disable_axis_steppers(axis);
+    _disable_overlapping_axes(enable_overlap[INDEX_OF_AXIS(axis)]);
   }
 
   return can_disable;
@@ -759,6 +770,7 @@ bool Stepper::disable_axis(const AxisEnum axis) {
     if (can_disable) {
       #define _CASE_DIS_E(N) case N: DISABLE_AXIS_E##N(); break;
       switch (eindex) { REPEAT(E_STEPPERS, _CASE_DIS_E) }
+      _disable_overlapping_axes(enable_overlap[INDEX_OF_AXIS(E_AXIS, eindex)]);
     }
     return can_disable;
   }
@@ -3285,8 +3297,8 @@ void Stepper::isr() {
 
           // The first pulse takes all that the delayed second pulse won't, so no E is lost to rounding
           first_pulse_rate = xy_long_t({
-            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? pre_shaping_rate.x - ((pre_shaping_rate.x * shaping_x.factor2) >> 7) :) pre_shaping_rate.x,
-            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? pre_shaping_rate.y - ((pre_shaping_rate.y * shaping_y.factor2) >> 7) :) pre_shaping_rate.y
+            TERN_(INPUT_SHAPING_X, shaping_x.enabled ? (pre_shaping_rate.x * shaping_x.factor1) >> 7 :) pre_shaping_rate.x,
+            TERN_(INPUT_SHAPING_Y, shaping_y.enabled ? (pre_shaping_rate.y * shaping_y.factor1) >> 7 :) pre_shaping_rate.y
           });
         }
 

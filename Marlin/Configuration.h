@@ -128,8 +128,12 @@
 //#define BLUETOOTH
 
 // Name displayed in the LCD "Ready" message and Info menu
+<<<<<<< Updated upstream
 //#define CUSTOM_MACHINE_NAME "3D Printer"
 //#define CONFIGURABLE_MACHINE_NAME // Add G-code M550 to set/report the machine name
+=======
+#define CUSTOM_MACHINE_NAME "E3 Dual-Z 2.1.2.9 101226"
+>>>>>>> Stashed changes
 
 // Printer's unique ID, used by some programs to differentiate between machines.
 // Choose your own or use a service like https://www.uuidgenerator.net/version4

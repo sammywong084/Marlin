@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -20,30 +20,33 @@
  *
  */
 
-#ifdef __PLAT_NATIVE_SIM__
-
 #include "../../inc/MarlinConfig.h"
-#include "pinsDebug.h"
 
-int8_t ADC_pin_mode(const pin_t) { return -1; }
+#if ALL(HAS_MEDIA, CREALITY_RTS)
 
-int8_t get_pin_mode(const pin_t pin) { return isValidPin(pin) ? 0 : -1; }
+#include "../gcode.h"
+#include "../../sd/cardreader.h"
+#include "../../lcd/marlinui.h"
+#include "../../lcd/rts/lcd_rts.h"
 
-bool getValidPinMode(const pin_t pin) {
-  const int8_t pin_mode = get_pin_mode(pin);
-  if (pin_mode == -1 || pin_mode == ADC_pin_mode(pin)) // Invalid pin or active analog pin
-    return false;
-
-  return (Gpio::getMode(pin) != 0); // Input/output state
-}
-
-// The pin and index are the same on this platform
-bool getPinIsDigitalByIndex(const pin_t pin) {
-  return !isAnalogPin(pin) || get_pin_mode(pin) != ADC_pin_mode(pin);
-}
-
-void printPinPort(const pin_t) {}
-void printPinPWM(const pin_t) {}
-bool pwm_status(const pin_t) { return false; }
-
+#if HAS_FILAMENT_SENSOR
+  #include "../../feature/runout.h"
 #endif
+
+/**
+ * M72: Open a file
+ *
+ * The path is relative to the root directory
+ */
+void GcodeSuite::M72() {
+  // Simplify3D includes the size, so zero out all spaces (#7227)
+  for (char *fn = parser.string_arg; *fn; ++fn) if (*fn == ' ') *fn = '\0';
+
+  card.openFileRead(parser.string_arg);
+
+  RTS_OpenFileCloud();
+
+  TERN_(LCD_SET_PROGRESS_MANUALLY, ui.set_progress(0));
+}
+
+#endif // HAS_MEDIA && CREALITY_RTS

@@ -36,6 +36,10 @@
   #include "../feature/password/password.h"
 #endif
 
+#if ALL(HAS_DISPLAY, HAS_MEDIA, ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h" // for paused_for_filament_change
+#endif
+
 // All displays share the MarlinUI class
 #include "marlinui.h"
 
@@ -1943,9 +1947,9 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
         // Last 5 cols act as a scroll :-)
         if (col > (LCD_WIDTH) - 5)
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
-          encoderDiff = epps * (encoderLine - encoderTopLine + 2 * (LCD_HEIGHT)) * ydir;
+          encoderDiff = epps * (menuIndex - menuTopIndex + 2 * (LCD_HEIGHT)) * ydir;
         else
-          encoderDiff = epps * (row - encoderPosition + encoderTopLine);
+          encoderDiff = epps * (row + menuTopIndex) - encoderPosition;
       }
       else if (!on_status_screen())
         encoderDiff = epps * xdir;

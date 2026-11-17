@@ -1044,6 +1044,16 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
               card.openFileRead(cur_name);
 
+              // An uploaded file is stored under its sanitized (8.3) name, so a long name
+              // from the host isn't found as given. Try the name the upload would have used.
+              if (!card.isFileOpen() && cur_name && MKSW_WIFI_TYPE == ESP_WIFI) {
+                char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_BYTES, FILENAME_LENGTH)];
+                if (sanitizeName(cur_name + 1, dosName)) {
+                  strcpy(cur_name + 1, dosName);
+                  card.openFileRead(cur_name);
+                }
+              }
+
               if (card.isFileOpen())
                 print_to_wifi("File selected\r\n");
               else {
@@ -1149,7 +1159,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       case 27:
         // Report print rate
         if (MKSW_PRINT_STATE == WORKING || MKSW_PRINT_STATE == PAUSED|| MKSW_PRINT_STATE == REPRINTING) {
-          print_rate = MKSW_TOTAL_SEND;
+          print_rate = TERN0(HAS_MEDIA, card.percentDone());
           ZERO(tempBuf);
           sprintf_P(tempBuf, PSTR("M27 %d\r\n"), print_rate);
           print_to_wifi(tempBuf);
@@ -1201,53 +1211,19 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       case 105:
       case 991:
         ZERO(tempBuf);
-        if (cmd_value == 105) {
-
-          send_ok_to_wifi();
-
-          char *outBuf = tempBuf;
-          char tbuf[34];
-
-          sprintf_P(tbuf, PSTR("%d /%d"), thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0));
-
-          const int tlen = strlen(tbuf);
-          sprintf_P(outBuf, PSTR("T:%s"), tbuf);
-          outBuf += 2 + tlen;
-
-          strcpy_P(outBuf, PSTR(" B:"));
-          outBuf += 3;
-          #if HAS_HEATED_BED
-            sprintf_P(outBuf, PSTR("%d /%d"), thermalManager.wholeDegBed(), thermalManager.degTargetBed());
-          #else
-            strcpy_P(outBuf, PSTR("0 /0"));
-          #endif
-          outBuf += 4;
-
-          strcat_P(outBuf, PSTR(" T0:"));
-          strcat(outBuf, tbuf);
-          outBuf += 4 + tlen;
-
-          strcat_P(outBuf, PSTR(" T1:"));
-          outBuf += 4;
-          #if HAS_MULTI_HOTEND
-            sprintf_P(outBuf, PSTR("%d /%d"), thermalManager.wholeDegHotend(1), thermalManager.degTargetHotend(1));
-          #else
-            strcpy_P(outBuf, PSTR("0 /0"));
-          #endif
-          outBuf += 4;
-
-          strcat_P(outBuf, PSTR(" @:0 B@:0\r\n"));
-        }
-        else {
-          sprintf_P(tempBuf, PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
-            thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
-            TERN0(HAS_HEATED_BED, thermalManager.wholeDegBed()),
-            TERN0(HAS_HEATED_BED, thermalManager.degTargetBed()),
-            thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
-            TERN0(HAS_MULTI_HOTEND, thermalManager.wholeDegHotend(1)),
-            TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1))
-          );
-        }
+        // M105 (from a network client): reply "ok T:..." on one line, like Marlin's own serial
+        // reply. The MKS WiFi module passes such lines through verbatim, whereas it handles
+        // lines starting with "T:" itself (for M991 status polling) instead of passing them on.
+        snprintf_P(tempBuf, sizeof(tempBuf), cmd_value == 105
+            ? PSTR("ok T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n")
+            : PSTR("T:%d /%d B:%d /%d T0:%d /%d T1:%d /%d @:0 B@:0\r\n"),
+          thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
+          TERN0(HAS_HEATED_BED, thermalManager.wholeDegBed()),
+          TERN0(HAS_HEATED_BED, thermalManager.degTargetBed()),
+          thermalManager.wholeDegHotend(0), thermalManager.degTargetHotend(0),
+          TERN0(HAS_MULTI_HOTEND, thermalManager.wholeDegHotend(1)),
+          TERN0(HAS_MULTI_HOTEND, thermalManager.degTargetHotend(1))
+        );
 
         print_to_wifi(tempBuf);
         break;
@@ -1304,20 +1280,18 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       default:
         strcat_P((char *)cmd_line, PSTR("\n"));
 
-        if (espGcodeFifo.wait_tick > 5) {
-          uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
-          if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
+        uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
+        if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
 
-          if (left >= strlen((const char *)cmd_line)) {
-            for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
-              espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-              espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
-            }
-            if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
-              send_ok_to_wifi();
-            else
-              need_ok_later = true;
+        if (left >= strlen((const char *)cmd_line)) {
+          for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
+            espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
+            espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
           }
+          if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
+            send_ok_to_wifi();
+          else
+            need_ok_later = true;
         }
         break;
     }
@@ -1326,20 +1300,18 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
     // Add another linefeed to the command, terminate with null
     strcat_P((char *)cmd_line, PSTR("\n"));
 
-    if (espGcodeFifo.wait_tick > 5) {
-      uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
-      if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
+    uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
+    if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
 
-      if (left_g >= strlen((char * const)cmd_line)) {
-        for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
-          espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-          espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
-        }
-        if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
-          send_ok_to_wifi();
-        else
-          need_ok_later = true;
+    if (left_g >= strlen((char * const)cmd_line)) {
+      for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
+        espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
+        espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
       }
+      if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
+        send_ok_to_wifi();
+      else
+        need_ok_later = true;
     }
   }
 }

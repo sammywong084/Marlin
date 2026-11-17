@@ -46,6 +46,10 @@
   #include "../feature/controllerfan.h"
 #endif
 
+#if ENABLED(TEMP_STAT_LEDS)
+  #include "../feature/leds/tempstat.h"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "motion.h"
 #endif
@@ -645,6 +649,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Run Controller Fan check (normally handled by manage_inactivity)
     TERN_(USE_CONTROLLER_FAN, controllerFan.update());
+
+    // Update the temperature status LEDs (normally handled by manage_inactivity)
+    TERN_(TEMP_STAT_LEDS, handle_status_leds());
 
     // Run UI update
     #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
@@ -5119,7 +5126,7 @@ void Temperature::isr() {
           print_heater_states(motion.extruder);
           const millis_t remaining = soak_end - now;
           const long rem_sec = long((remaining + 800UL) / 1000UL); // Show "0" for the last 0.2 seconds
-          SERIAL_ECHOLNPGM(" W:", rem_sec)
+          SERIAL_ECHOLNPGM(" W:", rem_sec);
           #if HAS_STATUS_MESSAGE
             ui.status_printf(0, F(S_FMT " %lus"), GET_TEXT(MSG_HEAT_SOAK), rem_sec);
           #endif

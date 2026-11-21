@@ -384,6 +384,13 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * G-code Preview
+ */
+#if HAS_TFT_GCODE_PREVIEW && !ALL(TFT_COLOR_UI, HAS_MEDIA)
+  #error "GCODE_PREVIEW_(JPEG|QOI|MKS) require TFT_COLOR_UI and SDSUPPORT."
+#endif
+
+/**
  * Custom Boot and Status screens
  */
 #if ENABLED(SHOW_CUSTOM_BOOTSCREEN) && NONE(TFT_COLOR_UI, HAS_MARLINUI_HD44780, HAS_MARLINUI_U8GLIB, TOUCH_UI_FTDI_EVE, IS_DWIN_MARLINUI)
@@ -612,7 +619,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #if !HAS_EXTENDABLE_MMU && EXTRUDERS != 5
     #undef SINGLENOZZLE
-    #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
+    #error "PRUSA_MMU2(S) and PRUSA_MMU3 require exactly 5 EXTRUDERS. Please update your Configuration."
   #elif HAS_EXTENDABLE_MMU && EXTRUDERS > 15
     #error "EXTRUDERS is too large for MMU(S) emulation mode. The maximum value is 15."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
@@ -1685,6 +1692,20 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 
   #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a real probe."
+  #endif
+
+  /**
+   * G28 P Precise Homing
+   */
+  #if ENABLED(PRECISE_Z_HOMING)
+    #error "PRECISE_Z_HOMING requires a bed probe."
+  #endif
+
+  /**
+   * G35 Assisted Tramming
+   */
+  #if ENABLED(ASSISTED_TRAMMING)
+    #error "ASSISTED_TRAMMING requires a bed probe."
   #endif
 
 #endif
@@ -2913,13 +2934,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
- * G35 Assisted Tramming
- */
-#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
-  #error "ASSISTED_TRAMMING requires a bed probe."
-#endif
-
-/**
  * G38 Probe Target
  */
 #if ENABLED(G38_PROBE_TARGET)
@@ -3332,6 +3346,19 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
   #elif defined(SERIAL_PORT_3) && RS485_SERIAL_PORT == SERIAL_PORT_3
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
+  #endif
+#endif
+
+/**
+ * CAN bus requires a supported HAL and the board's CAN pins
+ */
+#if ENABLED(CAN_BUS)
+  #ifndef HAL_STM32
+    #error "CAN_BUS is currently only supported on STM32 (HAL/STM32)."
+  #elif !PINS_EXIST(CAN_RX, CAN_TX)
+    #error "CAN_BUS requires CAN_RX_PIN and CAN_TX_PIN. Define them in Configuration.h if your board's pins file lacks them."
+  #elif !WITHIN(CAN_BITRATE, 10000, 1000000)
+    #error "CAN_BITRATE must be from 10000 to 1000000 (classic CAN)."
   #endif
 #endif
 

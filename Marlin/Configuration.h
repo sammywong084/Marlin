@@ -3501,7 +3501,7 @@
 
 //
 // Creality Resistive Touch Screen
-// As found in the Creality CR-6 S1
+// As found in the Creality Ender-5 S1
 //
 //#define CREALITY_RTS
 #if ENABLED(CREALITY_RTS)
